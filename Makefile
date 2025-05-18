@@ -1,37 +1,21 @@
-# 변수 정의
-DOCKER_COMPOSE=docker-compose
-APP_NAME=my-spring-app
-JAR_FILE=build/libs/$(APP_NAME).jar
-
 # 기본 명령어
-.PHONY: help build run db-up db-down db-logs clean
+.PHONY: help docker-compose-up-local docker-compose-down-local run-local clean-local
 
 help:
 	@echo "사용 가능한 명령어:"
-	@echo "  make build       - Spring Boot 프로젝트 빌드"
-	@echo "  make run         - 빌드한 JAR 파일 실행"
-	@echo "  make db-up       - Docker로 DB 컨테이너 실행"
-	@echo "  make db-down     - DB 컨테이너 중지 및 삭제"
-	@echo "  make db-logs     - DB 로그 보기"
-	@echo "  make clean       - 빌드된 파일 및 도커 정리"
+	@echo "  make docker-compose-up-local       - 로컬 DB 컨테이너 생성 및 초기화"
+	@echo "  make docker-compose-down-local         - 로컬 DB 컨테이너 종료 및 제거"
+	@echo "  make run-local       - Docker로 DB 컨테이너 실행"
+	@echo "  make clean-local       - 빌드된 파일 정리"
 
-build:
-	./gradlew clean build
+docker-compose-up-local:
+	docker-compose --env-file envfile/local.env -f infra/docker-compose.local.yml up -d
 
-run:
-	java -jar $(JAR_FILE)
+docker-compose-down-local:
+	docker-compose --env-file envfile/local.env -f infra/docker-compose.local.yml down -v
 
-db-up:
-	$(DOCKER_COMPOSE) up -d db
+run-local:
+	./gradlew bootRun
 
-db-down:
-	$(DOCKER_COMPOSE) down
-
-db-logs:
-	$(DOCKER_COMPOSE) logs -f db
-
-clean:
+clean-local:
 	./gradlew clean
-	$(DOCKER_COMPOSE) down -v
-
-
